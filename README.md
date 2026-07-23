@@ -136,6 +136,18 @@ produces a fee of 1. This rounding behavior is an accepted protocol tradeoff.
 | `total_settled_amount(status)` | – | Sum settled `amount` across every settlement in a given lifecycle state |
 | `contract_info()` | – | One-call snapshot of version, paused flag, fee, and anchor/asset/settlement counts |
 
+#### Settlement lifecycle
+
+| From status | Entrypoint | Required authority | To status | Notes |
+|---|---|---|---|---|
+| `Pending` | `execute_settlement(id)` | admin | `Executed` | Finalizes the settlement and accrues the protocol fee. |
+| `Pending` | `cancel_settlement(id)` | anchor that opened the settlement | `Cancelled` | Returns the reserved amount to the asset pool before closing the request. |
+| `Pending` | `cancel_expired_settlement(id)` | none | `Expired` | Permissionless reclaim after the configured expiry window has elapsed. |
+
+`Executed`, `Cancelled`, and `Expired` are terminal and mutually exclusive.
+Once a settlement reaches any terminal status, the settlement cannot move back
+to `Pending` or transition to another terminal status. Regression coverage for
+invalid terminal-state transitions is tracked in #151 and #153.
 `cancel_expired_settlement` requires no authorization: it only ever returns
 liquidity to the shared pool it was reserved from, never to an external
 party, so anyone (including an off-chain keeper) may call it once a pending
