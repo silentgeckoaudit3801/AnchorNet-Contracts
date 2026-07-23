@@ -76,16 +76,15 @@ state.
 | `set_min_liquidity(asset, floor)` | admin | Set the minimum liquidity floor an asset's pool may not be withdrawn below (0 disables) |
 | `min_liquidity(asset)` | – | Read the minimum liquidity floor configured for an asset |
 | `set_max_settlement_amount(asset, amount)` | admin | Cap the amount a single settlement may reserve for an asset (0 disables) |
-
 #### Anchor and asset list growth
 
-list_anchors(start, limit), nchor_count(), list_assets(start, limit),
-and sset_count() read from persistent AnchorList and AssetList entries
-that are append-only history lists. egister_anchor / egister_anchors
-append a newly seen anchor through emember_anchor, and the first liquidity
-provision for an asset appends through emember_asset. deregister_anchor
+`list_anchors(start, limit)`, `anchor_count()`, `list_assets(start, limit)`,
+and `asset_count()` read from persistent `AnchorList` and `AssetList` entries
+that are append-only history lists. `register_anchor` / `register_anchors`
+append a newly seen anchor through `remember_anchor`, and the first liquidity
+provision for an asset appends through `remember_asset`. `deregister_anchor`
 only flips that anchor's active flag; it does not remove the address from
-AnchorList, so pagination continues to scan the ever-seen list and skip
+`AnchorList`, so pagination continues to scan the ever-seen list and skip
 inactive anchors when returning active results.
 
 Each new anchor or asset currently rewrites the whole vector entry, so the
@@ -93,10 +92,11 @@ write cost grows with the number of distinct anchors/assets ever observed.
 Until the storage-scalability refactor in [#124](https://github.com/AnchorNet-Org/AnchorNet-Contracts/issues/124)
 lands, integrators should treat hundreds of anchors/assets as a planning
 threshold rather than assuming thousands will fit comfortably in one contract.
-For larger deployments, benchmark realistic egister_anchors, first-asset
-provide_liquidity, and paginated list calls against the target Soroban
+For larger deployments, benchmark realistic `register_anchors`, first-asset
+`provide_liquidity`, and paginated list calls against the target Soroban
 network budget, and prefer smaller onboarding batches so a single transaction
-is not coupled to the full historical list size.| `max_settlement_amount(asset)` | – | Read the maximum settlement amount configured for an asset |
+is not coupled to the full historical list size.
+| `max_settlement_amount(asset)` | – | Read the maximum settlement amount configured for an asset |
 
 ### Admin & lifecycle
 
